@@ -1,30 +1,37 @@
 class MBTAMap:
-    def __init__(self, routes, routes_to_stops):
+    def __init__(self, routes):
         self.routes = routes
-        self.routes_to_stops = routes_to_stops
-        self.sorted_routes_ids = sorted(self.routes_to_stops, key=lambda x: len(self.routes_to_stops[x]))
-        self.stops_to_routes = {}
-        for route_id, stops in self.routes_to_stops.items():
-            for stop in stops:
-                if stop.name not in self.stops_to_routes:
-                    self.stops_to_routes[stop.name] = []
-                self.stops_to_routes[stop.name].append(route_id)
+        self.sorted_routes = sorted(self.routes, key=lambda x: len(x.stops))
+        self.stops_to_routes = self.get_stops_to_route()
         self.connecting_stops = [stop_name for stop_name, routes in self.stops_to_routes.items() if len(routes) > 1]
-        self.route_connections = {route_id: [] for route_id in self.routes_to_stops}
+        self.route_connections = self.get_route_connections()
+
+    def get_stops_to_route(self):
+        stops_to_routes = {}
+        for route in self.routes:
+            for stop in route.stops:
+                if stop.name not in stops_to_routes:
+                    stops_to_routes[stop.name] = []
+                if route.group not in stops_to_routes[stop.name]:
+                    stops_to_routes[stop.name].append(route.group)
+        return stops_to_routes
+
+    def get_route_connections(self):
+        route_connections = {route.group: [] for route in self.routes}
         for connecting_stop in self.connecting_stops:
             for route_idx, route1 in enumerate(self.stops_to_routes[connecting_stop]):
                 for route2 in self.stops_to_routes[connecting_stop][route_idx + 1:]:
-                    self.route_connections[route1].append(route2)
-                    self.route_connections[route2].append(route1)
-
+                    route_connections[route1].append(route2)
+                    route_connections[route2].append(route1)
+        return route_connections
 
     def get_all_route_names(self):
         return [route.name for route in self.routes]
 
     def get_route_by_sorted_index(self, idx):
-        if len(self.sorted_routes_ids) == 0:
+        if len(self.sorted_routes) == 0:
             return None, []
-        return self.sorted_routes_ids[idx], self.routes_to_stops[self.sorted_routes_ids[idx]]
+        return self.sorted_routes[idx].id, self.sorted_routes[idx].stops
 
     def get_min_route(self):
         return self.get_route_by_sorted_index(0)

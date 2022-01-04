@@ -1,11 +1,10 @@
 import requests
-from src.route import Route
-from src.stop import Stop
 
 class MBTAAPI:
     core_url = 'https://api-v3.mbta.com'
     routes_url = 'routes'
     stops_url = 'stops'
+    line_url = 'lines'
 
     def __init__(self, api_key):
         self.headers = {}
@@ -20,9 +19,10 @@ class MBTAAPI:
             return response.json()
 
     def routes(self):
-        route_json = self.get_response("{}/{}?filter[type]=0,1".format(self.core_url, self.routes_url))
-        return [Route(route_data) for route_data in route_json['data']]
+        return self.get_response("{}/{}?filter[type]=0,1&include=line".format(self.core_url, self.routes_url))['data']
 
-    def stops(self, route):
-        stop_json = self.get_response("{}/{}?filter[route]={}".format(self.core_url, self.stops_url, route.id))
-        return [Stop(stop_data) for stop_data in stop_json['data']]
+    def stops(self, route_id):
+        return self.get_response("{}/{}?filter[route]={}".format(self.core_url, self.stops_url, route_id))['data']
+
+    def line(self, line_id):
+        return self.get_response("{}/{}/{}".format(self.core_url, self.line_url, line_id))['data']
