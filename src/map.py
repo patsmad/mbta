@@ -43,10 +43,10 @@ class MBTAMap:
         missing_stops = [stop for stop in [stop1, stop2] if stop not in self.stops_to_routes]
         path = []
         if len(missing_stops) == 0:
-            path = self.depth_first_search(stop1, stop2)
+            path = self.breadth_first_search(stop1, stop2)
         return path
 
-    def depth_first_search(self, stop1, stop2):
+    def breadth_first_search(self, stop1, stop2):
         parents = {route_id: None for route_id in self.stops_to_routes[stop1]}
         queue = [route_id for route_id in self.stops_to_routes[stop1]]
         destination_routes = self.stops_to_routes[stop2]
