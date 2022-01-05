@@ -18,7 +18,7 @@ class MBTAAPITest(unittest.TestCase):
         }
 
         self.mock_api = MockMBTAAPI(mock_routes_response, mock_stop_response, mock_line_response)
-        self.mock_map = build_map(self.mock_api)
+        self.mock_map = build_map(self.mock_api, fetch_stops=True, use_lines=True)
 
     def test_api(self):
         routes = self.mock_map.routes
